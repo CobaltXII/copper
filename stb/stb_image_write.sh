@@ -1,0 +1,1 @@
+clang -c stb_image_write.c -o stb_image_write.o -O3
