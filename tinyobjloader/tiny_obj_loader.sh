@@ -1,0 +1,1 @@
+clang++ -c tiny_obj_loader.cc -o tiny_obj_loader.o -O3
