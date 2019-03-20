@@ -28,6 +28,10 @@ enum material_type
 
 const float glossiness = 0.6f;
 
+const float refractive_index = 1.5f;
+
+const float fresnel_reflection = 0.1f;
+
 struct material
 {
 	material_type type;
@@ -53,11 +57,11 @@ struct material
 
 			if (theta1 > 0.0f)
 			{
-				index_i = 1.5f;
+				index_i = refractive_index;
 			}
 			else
 			{
-				index_j = 1.5f;
+				index_j = refractive_index;
 			}
 
 			float eta = index_j / index_i;
@@ -69,7 +73,7 @@ struct material
 
 			float reflectance = (r1 * r1 + r2 * r2);
 
-			if (rand00(seed) < reflectance + 0.1f)
+			if (rand00(seed) < reflectance + fresnel_reflection)
 			{
 				return ray_d + normal * theta1 * 2.0f;
 			}
