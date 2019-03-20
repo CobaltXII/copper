@@ -1,3 +1,5 @@
 *.o
 
 copper
+
+*.DS_Store
