@@ -1,0 +1,1 @@
+clang++ copper.cpp tinyobjloader/tiny_obj_loader.o inih/ini.o lib/stb_image.o lib/stb_image_write.o lib/stb_perlin.o -o copper -std=c++11 -Ofast -march=native -Wall -Wpedantic && ./copper ini/model.ini
