@@ -1,7 +1,5 @@
 # Copper
 
-![Alt text](https://github.com/CobaltXII/copper/blob/master/img/copper_lucy_3072.png?raw=true)
-
 ## Summary
 
 Copper is a pathtracer that was made by recycling the source code of my raytracer, Orb. It supports raytracing spheres, ellipsoids, cones, capsules, cylinders and planes. It does not support explicit light sampling (yet!). It supports lambert, mirror and emissive materials.
