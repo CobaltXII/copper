@@ -91,9 +91,18 @@ glm::vec3 trace_ray(glm::vec3 ray_o, glm::vec3 ray_d)
 				triangle_min->n2 * bary_b
 			);
 
-			ray_o = ray_o + ray_d * t_min + normal * EPSILON;
+			glm::vec3 new_ray_d = triangle_min->material.bounce(normal, ray_d);
 
-			ray_d = triangle_min->material.bounce(normal, ray_d);
+			if (glm::dot(new_ray_d, normal) < 0.0f)
+			{
+				ray_o = ray_o + ray_d * t_min - normal * EPSILON;
+			}
+			else
+			{
+				ray_o = ray_o + ray_d * t_min + normal * EPSILON;
+			}
+
+			ray_d = new_ray_d;
 
 			luminance *= triangle_min->material.diffuse;
 		}
