@@ -86,9 +86,9 @@ glm::vec3 trace_ray(glm::vec3 ray_o, glm::vec3 ray_d)
 
 			glm::vec3 normal =
 			(
-				triangle_min->n0 * bary_a +
-				triangle_min->n1 * bary_b +
-				triangle_min->n2 * bary_c
+				triangle_min->n0 * bary_c +
+				triangle_min->n1 * bary_a +
+				triangle_min->n2 * bary_b
 			);
 
 			ray_o = ray_o + ray_d * t_min + normal * EPSILON;
