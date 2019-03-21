@@ -2,6 +2,8 @@
 
 Sterling is a naive pathtracer written in C++.
 
+![Alt text](https://github.com/CobaltXII/sterling/blob/master/img/sterling_dragon_2048_512.png?raw=true)
+
 # Dependencies
 
 Sterling uses the following libraries: stb_image_write (Sean T. Barrett), inih (Ben Hoyt), and tinyobjloader (Syoyo Fujita). They are slow to compile, so they are linked at compile time. To compile these libraries, please run the associated shell scripts that can be found alongside the source code.
