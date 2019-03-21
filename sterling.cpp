@@ -249,7 +249,7 @@ int main(int argc, char** argv)
 	int x_res = inii("main", "x_res");
 	int y_res = inii("main", "y_res");
 
-	float fov = inii("camera", "fov");
+	float fov = inif("camera", "fov");
 
 	float x_resf = x_res;
 	float y_resf = y_res;
@@ -281,9 +281,9 @@ int main(int argc, char** argv)
 
 	glm::vec3 ray_o =
 	{
-		inii("camera", "x"),
-		inii("camera", "y"),
-		inii("camera", "z")
+		inif("camera", "x"),
+		inif("camera", "y"),
+		inif("camera", "z")
 	};
 
 	for (int j = 0; j < y_res; j++)
