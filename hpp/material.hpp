@@ -23,8 +23,34 @@ glm::vec3 random_cosine_weighted_direction_in_hemisphere(glm::vec3 normal)
 
 enum material_type
 {
-	lambert, mirror, glossy, refractive
+	lambert, mirror, glossy, refractive, invalid
 };
+
+material_type inim(std::string section, std::string name)
+{
+	std::string type = ini_file.at(section).at(name);
+
+	if (type == "lambert")
+	{
+		return lambert;
+	}
+	else if (type == "mirror")
+	{
+		return mirror;
+	}
+	else if (type == "glossy")
+	{
+		return glossy;
+	}
+	else if (type == "refractive")
+	{
+		return refractive;
+	}
+
+	nuke("Invalid material type.");
+
+	return invalid;
+}
 
 const float glossiness = 0.6f;
 
