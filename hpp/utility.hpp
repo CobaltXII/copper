@@ -8,3 +8,10 @@
 std::default_random_engine seed;
 
 std::uniform_real_distribution<float> rand00(0.0f, 1.0f);
+
+void nuke(std::string note)
+{
+	std::cout << note << std::endl;
+
+	exit(EXIT_FAILURE);
+}
