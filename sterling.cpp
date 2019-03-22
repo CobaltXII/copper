@@ -29,13 +29,6 @@ Sterling - a naive pathtracer
 
 #include "tinyobjloader/tiny_obj_loader.h"
 
-void nuke(std::string note)
-{
-	std::cout << note << std::endl;
-
-	exit(EXIT_FAILURE);
-}
-
 std::vector<kd_tree*> scene;
 
 glm::vec3 trace_ray(glm::vec3 ray_o, glm::vec3 ray_d)
@@ -131,6 +124,8 @@ int main(int argc, char** argv)
 		nuke("Could not load scene (ini_parse).");
 	}
 
+	std::map<std::string, material> materials;
+
 	for (auto section: ini_file)
 	{
 		if (section.first == "main" || section.first == "camera")
@@ -200,7 +195,23 @@ int main(int argc, char** argv)
 							anz[v] = obj_attrib.normals[3 * idx.normal_index + 2];
 						}
 
-						tinyobj::material_t material = obj_materials[obj_shapes[s].mesh.material_ids[f]];
+						tinyobj::material_t obj_material = obj_materials[obj_shapes[s].mesh.material_ids[f]];
+
+						material triangle_material =
+						{
+							lambert,
+
+							{
+								obj_material.diffuse[0],
+								obj_material.diffuse[1],
+								obj_material.diffuse[2]
+							}
+						};
+
+						if (materials.find(obj_material.name) != materials.end())
+						{
+							triangle_material = materials[obj_material.name];
+						}
 
 						kd_builder.push_back
 						(
@@ -214,15 +225,7 @@ int main(int argc, char** argv)
 								{anx[1], any[1], anz[1]},
 								{anx[2], any[2], anz[2]},
 
-								{
-									material.name == "DragonMaterial" ? refractive : lambert,
-
-									{
-										material.diffuse[0],
-										material.diffuse[1],
-										material.diffuse[2]
-									}
-								}
+								triangle_material
 							}
 						);
 					}
@@ -236,6 +239,31 @@ int main(int argc, char** argv)
 			}
 
 			scene.push_back(build_kd_tree(kd_builder));
+		}
+		else if (type == "material")
+		{
+			std::string name = inis(section.first, "name");
+
+			material_type type = inim(section.first, "material");
+
+			float material_r = inif(section.first, "r");
+			float material_g = inif(section.first, "g");
+			float material_b = inif(section.first, "b");
+
+			materials[name] =
+			{
+				type,
+
+				{
+					material_r,
+					material_g,
+					material_b
+				}
+			};
+		}
+		else
+		{
+			nuke("Unknown type name in scene file.");
 		}
 	}
 
