@@ -46,7 +46,7 @@ glm::vec3 trace_ray(glm::vec3 ray_o, glm::vec3 ray_d)
 
 	glm::vec3 indirect = {0.0f, 0.0f, 0.0f};
 
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 8; i++)
 	{
 		triangle* triangle_min = nullptr;
 
@@ -215,7 +215,7 @@ int main(int argc, char** argv)
 								{anx[2], any[2], anz[2]},
 
 								{
-									material.name == "DragonMaterial" ? glossy : lambert,
+									material.name == "DragonMaterial" ? refractive : lambert,
 
 									{
 										material.diffuse[0],
