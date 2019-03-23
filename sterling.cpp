@@ -31,7 +31,7 @@ Sterling - a naive pathtracer
 
 std::vector<kd_tree*> scene;
 
-glm::vec3 trace_ray(glm::vec3 ray_o, glm::vec3 ray_d)
+glm::vec3 path_trace(glm::vec3 ray_o, glm::vec3 ray_d)
 {
 	ray_d = glm::normalize(ray_d);
 
@@ -98,6 +98,133 @@ glm::vec3 trace_ray(glm::vec3 ray_o, glm::vec3 ray_d)
 			ray_d = new_ray_d;
 
 			luminance *= triangle_min->material.diffuse;
+		}
+	}
+
+	return indirect;
+}
+
+material mandelbulb_material =
+{
+	lambert,
+
+	{
+		0.800f,
+		0.800f,
+		0.800f
+	}
+};
+
+float mandelbulb_sdf(glm::vec3 p)
+{
+	glm::vec3 w = p;
+
+	float m = glm::dot(w, w);
+
+	glm::vec4 trap = glm::vec4(fabsf(w.x), fabsf(w.y), fabsf(w.z), m);
+
+	float dz = 1.0f; 
+
+	for (int i = 0; i < 4; i++)
+	{
+		dz = 8.0f * powf(sqrtf(m), 7.0f) * dz + 1.0f;
+
+		float r = glm::length(w);
+
+		float b = 8.0f * acosf(w.y / r);
+
+		float a = 8.0f * atan2f(w.x, w.z);
+
+		w = p + powf(r, 8.0f) * glm::vec3(sinf(b) * sinf(a), cosf(b), sinf(b) * cos(a));
+
+		trap.x = fmin(trap.x, fabsf(w.x));
+		trap.y = fmin(trap.y, fabsf(w.y));
+		trap.z = fmin(trap.z, fabsf(w.z));
+
+		trap.w = fmin(trap.w, m);
+
+		m = glm::dot(w, w);
+
+		if (m > 256.0f)
+		{
+			break;
+		}
+	}
+
+	return 0.25f * logf(m) * sqrtf(m) / dz;
+}
+
+// This function is work in progress. Currently, it just renders the
+// mandelbulb set if the camera is at 0, 0, 3. Maybe in the future it will be
+// extended so that it can path-march many different shapes.
+
+glm::vec3 path_march(glm::vec3 ray_o, glm::vec3 ray_d)
+{
+	ray_d = glm::normalize(ray_d);
+
+	glm::vec3 luminance = {1.0f, 1.0f, 1.0f};
+
+	glm::vec3 indirect = {0.0f, 0.0f, 0.0f};
+
+	for (int iter = 0; iter < 4; iter++)
+	{
+		bool hit = false;
+
+		float t = 0.0f;
+
+		for (int i = 0; i < 128; i++)
+		{
+			glm::vec3 p = ray_o + ray_d * t;
+
+			float dt = mandelbulb_sdf(p);
+
+			if (dt < 1e-3f)
+			{
+				hit = true;
+
+				break;
+			}
+
+			t += dt;
+
+			if (t > 100.0f)
+			{
+				break;
+			}
+		}
+
+		if (hit)
+		{
+			glm::vec3 p = ray_o + ray_d * t;
+
+			glm::vec3 normal = glm::normalize
+			(
+				glm::vec3
+				(
+					mandelbulb_sdf({p.x + 0.001f, p.y + 0.000f, p.z + 0.000f}) - mandelbulb_sdf({p.x - 0.001f, p.y + 0.000f, p.z + 0.000f}),
+					mandelbulb_sdf({p.x + 0.000f, p.y + 0.001f, p.z + 0.000f}) - mandelbulb_sdf({p.x + 0.000f, p.y - 0.001f, p.z + 0.000f}),
+					mandelbulb_sdf({p.x + 0.000f, p.y + 0.000f, p.z + 0.001f}) - mandelbulb_sdf({p.x + 0.000f, p.y + 0.000f, p.z - 0.001f})
+				)
+			);
+
+			glm::vec3 new_ray_d = mandelbulb_material.bounce(normal, ray_d);
+
+			if (glm::dot(new_ray_d, normal) < 0.0f)
+			{
+				ray_o = ray_o + ray_d * t - normal * EPSILON;
+			}
+			else
+			{
+				ray_o = ray_o + ray_d * t + normal * EPSILON;
+			}
+
+			ray_d = new_ray_d;
+
+			luminance *= mandelbulb_material.diffuse;
+		}
+		else
+		{
+			return indirect + luminance;
 		}
 	}
 
@@ -334,7 +461,7 @@ int main(int argc, char** argv)
 					-1.0f
 				};
 
-				color += trace_ray(ray_o, ray_d);
+				color += path_trace(ray_o, ray_d);
 			}
 
 			color /= samples;
