@@ -23,7 +23,7 @@ glm::vec3 random_cosine_weighted_direction_in_hemisphere(glm::vec3 normal)
 
 enum material_type
 {
-	lambert, mirror, glossy, refractive, invalid
+	lambert, mirror, glossy, refractive, glazed, invalid
 };
 
 material_type inim(std::string section, std::string name)
@@ -45,6 +45,10 @@ material_type inim(std::string section, std::string name)
 	else if (type == "refractive")
 	{
 		return refractive;
+	}
+	else if (type == "glazed")
+	{
+		return glazed;
 	}
 
 	nuke("Invalid material type.");
@@ -106,6 +110,40 @@ struct material
 			else
 			{
 				return (ray_d + normal * theta1) * eta + normal * -theta2;
+			}
+		}
+		else if (type == glazed)
+		{
+			float theta1 = fabsf(glm::dot(normal, ray_d));
+
+			float index_i = 1.0f;
+			float index_j = 1.0f;
+
+			if (theta1 > 0.0f)
+			{
+				index_i = refractive_index;
+			}
+			else
+			{
+				index_j = refractive_index;
+			}
+
+			float eta = index_j / index_i;
+
+			float theta2 = sqrtf(1.0f - eta * eta * (1.0f - theta1 * theta1));
+
+			float r1 = (index_j * theta1 - index_i * theta2) / (index_j * theta1 + index_i * theta2);
+			float r2 = (index_i * theta1 - index_j * theta2) / (index_i * theta1 + index_j * theta2);
+
+			float reflectance = (r1 * r1 + r2 * r2);
+
+			if (rand00(seed) < reflectance + fresnel_reflection)
+			{
+				return random_cosine_weighted_direction_in_hemisphere(normal) * (1.0f - glossiness) + (ray_d - 2.0f * glm::dot(normal, ray_d) * normal) * glossiness;
+			}
+			else
+			{
+				return random_cosine_weighted_direction_in_hemisphere(-normal) * (1.0f - glossiness) + ((ray_d + normal * theta1) * eta + normal * -theta2) * glossiness;
 			}
 		}
 		else
