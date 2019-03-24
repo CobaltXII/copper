@@ -123,7 +123,7 @@ float mandelbulb_sdf(glm::vec3 p)
 
 	glm::vec4 trap = glm::vec4(fabsf(w.x), fabsf(w.y), fabsf(w.z), m);
 
-	float dz = 1.0f; 
+	float dz = 1.0f;
 
 	for (int i = 0; i < 4; i++)
 	{
