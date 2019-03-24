@@ -441,10 +441,10 @@ int main(int argc, char** argv)
 		inif("camera", "z")
 	};
 
+	#pragma omp parallel for schedule(dynamic)
+
 	for (int j = 0; j < y_res; j++)
 	{
-		std::cout << "Row " << j + 1 << "/" << y_res << "\r" << std::flush;
-
 		for (int i = 0; i < x_res; i++)
 		{
 			unsigned char* pixel = frame_buffer + (j * x_res + i) * 3;
@@ -470,6 +470,8 @@ int main(int argc, char** argv)
 			pixel[G] = fmax(0.0f, fmin(255.0f, powf(color.g, gamma) * 255.0f));
 			pixel[B] = fmax(0.0f, fmin(255.0f, powf(color.b, gamma) * 255.0f));
 		}
+
+		std::cout << "Row " << j + 1 << "/" << y_res << std::string(32, ' ') << "\r" << std::flush;
 	}
 
 	if (!stbi_write_png("sterling.png", x_res, y_res, 3, frame_buffer, x_res * 3))
